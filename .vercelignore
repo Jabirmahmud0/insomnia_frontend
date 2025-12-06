@@ -1,0 +1,4 @@
+# Ignore everything except the frontend files
+../backend/
+../README.md
+../restart_servers.bat
