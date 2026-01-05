@@ -58,24 +58,24 @@ function App() {
       Age: parseInt(age),
       Gender: gender,
       Occupation: occupation,
-      BMI_Category: bmiCategory,
-      Sleep_Duration: parseFloat(sleepDuration),
-      Quality_of_Sleep: qualityOfSleep === 'Poor' ? 1 : 
+      "BMI Category": bmiCategory,
+      "Sleep Duration": parseFloat(sleepDuration),
+      "Quality of Sleep": qualityOfSleep === 'Poor' ? 1 : 
                      qualityOfSleep === 'Fair' ? 2 : 
                      qualityOfSleep === 'Good' ? 3 : 
                      qualityOfSleep === 'Very Good' ? 4 : 5,
-      Stress_Level: stressLevel === 'Low' ? 1 : 
+      "Stress Level": stressLevel === 'Low' ? 1 : 
                   stressLevel === 'Minimal' ? 2 : 
                   stressLevel === 'Moderate' ? 3 : 
                   stressLevel === 'High' ? 4 : 5,
-      Physical_Activity_Level: physicalActivity === 'Sedentary' ? 1 : 
+      "Physical Activity Level": physicalActivity === 'Sedentary' ? 1 : 
                             physicalActivity === 'Light' ? 2 : 
                             physicalActivity === 'Moderate' ? 3 : 
                             physicalActivity === 'Active' ? 4 : 5,
-      Heart_Rate: parseInt(heartRate),
-      Daily_Steps: parseInt(dailySteps),
-      Systolic_BP: 120, // Default values for blood pressure
-      Diastolic_BP: 80
+      "Heart Rate": parseInt(heartRate),
+      "Daily Steps": parseInt(dailySteps),
+      "Systolic BP": 120, // Default values for blood pressure
+      "Diastolic BP": 80
     };
 
     try {
@@ -123,27 +123,57 @@ function App() {
       }
 
       return (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Prediction Result</h2>
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Prediction Result</h2>
           
-          {/* Result Card with new UI approach */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-            <p className="text-lg mb-3">
-              <span className="font-bold text-[#9CC6DB]">{primaryLabel}</span>
-            </p>
+          {/* Result Card with enhanced UI approach */}
+          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div className="flex items-start mb-3">
+              <div className={`mr-3 mt-1 w-2 h-2 rounded-full ${isLikelyHealthy ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <div>
+                <p className="text-base font-bold text-[#9CC6DB]">{primaryLabel}</p>
+                {secondaryInfo && (
+                  <p className="text-sm mt-1 text-gray-700">
+                    {secondaryInfo}
+                  </p>
+                )}
+              </div>
+            </div>
             
-            {secondaryInfo && (
-              <p className="text-base mb-3 text-gray-700">
-                {secondaryInfo}
-              </p>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <div className="bg-blue-50 p-2 rounded-md">
+                <p className="text-xs text-gray-600">Ensemble Confidence</p>
+                <p className="text-lg font-bold text-[#9CC6DB]">{predictionResult.ensemble_confidence}%</p>
+              </div>
+              <div className="bg-blue-50 p-2 rounded-md">
+                <p className="text-xs text-gray-600">RF Confidence</p>
+                <p className="text-lg font-bold text-[#9CC6DB]">{predictionResult.rf_confidence}%</p>
+              </div>
+            </div>
             
-            <p className="text-sm text-gray-600 mb-3">
-              Confidence: <span className="font-semibold">{predictionResult.ensemble_confidence}%</span>
-            </p>
+            {/* Risk assessment */}
+            <div className="mt-3 pt-2 border-t border-gray-100">
+              <p className="text-xs font-medium text-gray-700 mb-1">Risk Assessment:</p>
+              <div className="flex items-center">
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full ${
+                      !isLikelyHealthy && predictionResult.ensemble_confidence >= 70 ? 'bg-red-500' : 
+                      !isLikelyHealthy && predictionResult.ensemble_confidence >= 50 ? 'bg-yellow-500' : 
+                      'bg-green-500'
+                    }`}
+                    style={{ width: `${!isLikelyHealthy ? predictionResult.ensemble_confidence : 100 - predictionResult.ensemble_confidence}%` }}
+                  ></div>
+                </div>
+                <span className="ml-2 text-xs font-medium text-gray-700">
+                  {!isLikelyHealthy && predictionResult.ensemble_confidence >= 70 ? 'High Risk' : 
+                   !isLikelyHealthy && predictionResult.ensemble_confidence >= 50 ? 'Moderate Risk' : 'Low Risk'}
+                </span>
+              </div>
+            </div>
             
             {/* Disclaimer */}
-            <div className="mt-4 pt-3 border-t border-gray-100">
+            <div className="mt-3 pt-2 border-t border-gray-100">
               <p className="text-xs text-gray-500 italic">
                 Subtype suggestion is for screening only and requires clinical confirmation.
               </p>
@@ -151,23 +181,27 @@ function App() {
           </div>
           
           {/* Detailed info in collapsible section */}
-          <details className="bg-gray-50 rounded-lg p-4">
-            <summary className="cursor-pointer text-sm font-medium text-gray-700">
+          <details className="bg-gray-50 rounded-md p-3">
+            <summary className="cursor-pointer text-xs font-medium text-gray-700">
               Detailed Results (for research purposes)
             </summary>
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <p className="text-sm mb-2">
+            <div className="mt-2 pt-2 border-t border-gray-200">
+              <p className="text-xs mb-2">
                 Predicted Class: <span className="font-semibold">{predictionResult.predicted_class}</span>
               </p>
-              <p className="text-sm mb-2">
+              <p className="text-xs mb-2">
                 Ensemble Confidence: <span className="font-semibold">{predictionResult.ensemble_confidence}%</span>
               </p>
-              <p className="text-xs text-gray-600 mb-1">
-                Random Forest Confidence: {predictionResult.rf_confidence}%
+              <p className="text-xs mb-2">
+                Random Forest Confidence: <span className="font-semibold">{predictionResult.rf_confidence}%</span>
               </p>
               <p className="text-xs text-gray-500 italic">
                 {predictionResult.confidence_note}
               </p>
+              <div className="mt-2 pt-2 border-t border-gray-200">
+                <p className="text-xs text-gray-600 mb-1">Model Information:</p>
+                <p className="text-xs text-gray-600">Updated ensemble using Random Forest, XGBoost, Gradient Boosting, and Hybrid Stack models</p>
+              </div>
             </div>
           </details>
           
@@ -176,7 +210,7 @@ function App() {
               setPredictionResult(null);
               setCurrentStep(1);
             }}
-            className="mt-4 px-6 py-3 bg-gradient-to-r from-[#9CC6DB] to-[#74a5c2] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+            className="mt-3 px-4 py-2 bg-gradient-to-r from-[#9CC6DB] to-[#74a5c2] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
           >
             Start New Prediction
           </button>
@@ -187,9 +221,10 @@ function App() {
     // Show loading state
     if (isLoading) {
       return (
-        <div className="text-center py-10">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#9CC6DB] mb-4"></div>
-          <p className="text-gray-700">Analyzing your data...</p>
+        <div className="text-center py-6">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#9CC6DB] mb-3"></div>
+          <p className="text-gray-700 text-sm mb-1">Analyzing your data with updated models...</p>
+          <p className="text-xs text-gray-500">Using ensemble of Random Forest, XGBoost, Gradient Boosting, and Hybrid Stack models</p>
         </div>
       );
     }
@@ -197,8 +232,8 @@ function App() {
     // Show error message
     if (error) {
       return (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 text-center">{error}</p>
+        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-700 text-sm text-center">{error}</p>
         </div>
       );
     }
@@ -207,27 +242,27 @@ function App() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-8">
+          <div className="space-y-4">
             {/* Age Slider */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Enter your Age: {age}</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Enter your Age: {age}</label>
               <input 
                 type="range" 
                 min="18" 
                 max="100" 
                 value={age} 
                 onChange={(e) => setAge(e.target.value)}
-                className="w-full h-2 bg-gradient-to-r from-[#c5ddf0] to-[#9CC6DB] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#74a5c2]"
+                className="w-full h-2 bg-gradient-to-r from-[#c5ddf0] to-[#9CC6DB] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#74a5c2]"
               />
             </div>
             
             {/* Gender Dropdown */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Gender</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Gender</label>
               <select 
                 value={gender} 
                 onChange={(e) => setGender(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#c5ddf0] focus:border-transparent text-gray-800"
+                className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#c5ddf0] focus:border-transparent text-gray-800 text-sm"
               >
                 <option>Male</option>
                 <option>Female</option>
@@ -237,11 +272,11 @@ function App() {
             
             {/* Occupation Dropdown */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Occupation</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Occupation</label>
               <select 
                 value={occupation} 
                 onChange={(e) => setOccupation(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#c5ddf0] focus:border-transparent text-gray-800"
+                className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#c5ddf0] focus:border-transparent text-gray-800 text-sm"
               >
                 <option>Accountant</option>
                 <option>Doctor</option>
@@ -259,11 +294,11 @@ function App() {
             
             {/* BMI Category Dropdown */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">BMI category</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">BMI category</label>
               <select 
                 value={bmiCategory} 
                 onChange={(e) => setBmiCategory(e.target.value)}
-                className="w-full p-3 border border-[#9CC6DB] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#9CC6DB] focus:border-[#74a5c2] text-gray-800"
+                className="w-full p-2 border border-[#9CC6DB] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#9CC6DB] focus:border-[#74a5c2] text-gray-800 text-sm"
               >
                 <option>Normal</option>
                 <option>Normal Weight</option>
@@ -276,27 +311,27 @@ function App() {
       
       case 2:
         return (
-          <div className="space-y-8">
+          <div className="space-y-4">
             {/* Sleep Duration Slider */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Sleep Duration (hours): {sleepDuration}</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Sleep Duration (hours): {sleepDuration}</label>
               <input 
                 type="range" 
                 min="1" 
                 max="12" 
                 value={sleepDuration} 
                 onChange={(e) => setSleepDuration(e.target.value)}
-                className="w-full h-2 bg-gradient-to-r from-[#c5ddf0] to-[#9CC6DB] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#74a5c2]"
+                className="w-full h-2 bg-gradient-to-r from-[#c5ddf0] to-[#9CC6DB] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#74a5c2]"
               />
             </div>
             
             {/* Quality of Sleep Dropdown */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Quality of Sleep</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Quality of Sleep</label>
               <select 
                 value={qualityOfSleep} 
                 onChange={(e) => setQualityOfSleep(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#c5ddf0] focus:border-transparent text-gray-800"
+                className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#c5ddf0] focus:border-transparent text-gray-800 text-sm"
               >
                 <option>Poor</option>
                 <option>Fair</option>
@@ -308,11 +343,11 @@ function App() {
             
             {/* Physical Activity Dropdown */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Physical Activity Level</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Physical Activity Level</label>
               <select 
                 value={physicalActivity} 
                 onChange={(e) => setPhysicalActivity(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#c5ddf0] focus:border-transparent text-gray-800"
+                className="w-full p-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#c5ddf0] focus:border-transparent text-gray-800 text-sm"
               >
                 <option>Sedentary</option>
                 <option>Light</option>
@@ -326,23 +361,23 @@ function App() {
       
       case 3:
         return (
-          <div className="space-y-8">
+          <div className="space-y-4">
             {/* Heart Rate Slider */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Resting Heart Rate: {heartRate} BPM</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Resting Heart Rate: {heartRate} BPM</label>
               <input 
                 type="range" 
                 min="40" 
                 max="120" 
                 value={heartRate} 
                 onChange={(e) => setHeartRate(e.target.value)}
-                className="w-full h-2 bg-gradient-to-r from-[#c5ddf0] to-[#9CC6DB] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#74a5c2]"
+                className="w-full h-2 bg-gradient-to-r from-[#c5ddf0] to-[#9CC6DB] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#74a5c2]"
               />
             </div>
             
             {/* Daily Steps Slider */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Daily Steps: {dailySteps}</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Daily Steps: {dailySteps}</label>
               <input 
                 type="range" 
                 min="0" 
@@ -350,17 +385,17 @@ function App() {
                 step="100"
                 value={dailySteps} 
                 onChange={(e) => setDailySteps(e.target.value)}
-                className="w-full h-2 bg-gradient-to-r from-[#c5ddf0] to-[#9CC6DB] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#74a5c2]"
+                className="w-full h-2 bg-gradient-to-r from-[#c5ddf0] to-[#9CC6DB] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#74a5c2]"
               />
             </div>
             
             {/* Stress Level Dropdown */}
             <div>
-              <label className="block text-gray-800 mb-3 font-medium">Stress Level</label>
+              <label className="block text-gray-800 mb-2 font-medium text-sm">Stress Level</label>
               <select 
                 value={stressLevel} 
                 onChange={(e) => setStressLevel(e.target.value)}
-                className="w-full p-3 border border-[#9CC6DB] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#9CC6DB] focus:border-[#74a5c2] text-gray-800"
+                className="w-full p-2 border border-[#9CC6DB] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#9CC6DB] focus:border-[#74a5c2] text-gray-800 text-sm"
               >
                 <option>Low</option>
                 <option>Minimal</option>
@@ -378,53 +413,53 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="flex w-full max-w-6xl h-[80vh] bg-white rounded-3xl shadow-xl overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-2">
+      <div className="flex w-full max-w-4xl h-auto bg-white rounded-3xl shadow-xl overflow-hidden">
         {/* Left Panel - Stepper Sidebar */}
-        <div className="w-1/3 bg-[#c5ddf0] p-8 flex flex-col">
-          <h1 className="text-2xl font-bold text-[#2c4a5d] mb-10">Sleep Disorder Prediction</h1>
+        <div className="w-1/3 bg-[#c5ddf0] p-6 flex flex-col">
+          <h1 className="text-xl font-bold text-[#2c4a5d] mb-8">Sleep Disorder Prediction</h1>
           
-          <div className="space-y-6">
+          <div className="space-y-4">
             {steps.map((step) => (
               <div 
                 key={step.id} 
-                className={`flex items-center p-4 rounded-2xl transition-all duration-300 cursor-pointer ${
+                className={`flex items-center p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                   currentStep === step.id 
                     ? 'bg-[#9CC6DB] text-[#1a2e3d] shadow-md' 
                     : 'bg-[#c5ddf0] text-[#2c4a5d] hover:bg-[#9CC6DB] hover:text-[#1a2e3d]'
                 }`}
                 onClick={() => !predictionResult && setCurrentStep(step.id)}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
                   currentStep === step.id 
                     ? 'bg-[#74a5c2] text-white' 
                     : 'bg-[#9CC6DB] text-[#1a2e3d]'
                 }`}>
                   {step.id}
                 </div>
-                <span className="font-medium">{step.title}</span>
+                <span className="font-medium text-sm">{step.title}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Right Panel - Main Form Area */}
-        <div className="w-2/3 bg-white p-10 rounded-r-3xl shadow-sm">
+        <div className="w-2/3 bg-white p-8 rounded-r-3xl shadow-sm">
           {!predictionResult && (
             <>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">{getStepTitle()}</h2>
-              <p className="text-gray-600 mb-8">Please provide the necessary and accurate information.</p>
+              <h2 className="text-xl font-bold text-gray-800 mb-2">{getStepTitle()}</h2>
+              <p className="text-sm text-gray-600 mb-6">Please provide the necessary and accurate information.</p>
             </>
           )}
           
           {renderStepContent()}
           
           {!predictionResult && !isLoading && currentStep < 3 && (
-            <div className="mt-12 flex justify-between">
+            <div className="mt-8 flex justify-between">
               <button 
                 onClick={handleBack}
                 disabled={currentStep === 1}
-                className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${
+                className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${
                   currentStep === 1 
                     ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -434,7 +469,7 @@ function App() {
               </button>
               <button 
                 onClick={handleNext}
-                className="px-8 py-3 bg-gradient-to-r from-[#9CC6DB] to-[#74a5c2] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                className="px-6 py-2 bg-gradient-to-r from-[#9CC6DB] to-[#74a5c2] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
               >
                 Continue
               </button>
@@ -442,17 +477,17 @@ function App() {
           )}
           
           {!predictionResult && !isLoading && currentStep === 3 && (
-            <div className="mt-12 flex justify-between">
+            <div className="mt-8 flex justify-between">
               <button 
                 onClick={handleBack}
-                className="px-6 py-3 rounded-full font-medium transition-all duration-300 bg-gray-200 text-gray-700 hover:bg-gray-300"
+                className="px-5 py-2 rounded-full font-medium transition-all duration-300 bg-gray-200 text-gray-700 hover:bg-gray-300"
               >
                 Back
               </button>
               <button 
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="px-8 py-3 bg-gradient-to-r from-[#9CC6DB] to-[#74a5c2] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                className="px-6 py-2 bg-gradient-to-r from-[#9CC6DB] to-[#74a5c2] text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
               >
                 {isLoading ? 'Predicting...' : 'Predict'}
               </button>
